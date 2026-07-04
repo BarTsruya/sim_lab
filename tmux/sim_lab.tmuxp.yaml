@@ -1,0 +1,38 @@
+# Launch via ../scripts/start_sim_lab.sh (sweeps stale processes first).
+# Stop via ../scripts/stop_sim_lab.sh - `tmux kill-session` alone leaves gz
+# sim's server/gui children and MAVProxy's console/map subprocesses running.
+session_name: sim_lab
+start_directory: /home/user/projects/sim_lab
+
+windows:
+  - window_name: sim
+    layout: tiled
+    panes:
+      - shell_command:
+          - export GZ_SIM_SYSTEM_PLUGIN_PATH=/home/user/projects/sim_lab/deps/ardupilot_gazebo/build:${GZ_SIM_SYSTEM_PLUGIN_PATH}
+          - export GZ_SIM_RESOURCE_PATH=/home/user/projects/sim_lab/deps/ardupilot_gazebo/models:/home/user/projects/sim_lab/deps/ardupilot_gazebo/worlds:${GZ_SIM_RESOURCE_PATH}
+          - gz sim -r iris_warehouse.sdf
+
+      - shell_command:
+          - cd /home/user/projects/sim_lab/deps/ardupilot
+          - Tools/autotest/sim_vehicle.py -v ArduCopter -f gazebo-iris --model JSON --console --map --out=udp:127.0.0.1:14551
+
+      - shell_command:
+          - source /opt/ros/jazzy/setup.bash
+          - source /home/user/projects/sim_lab/install/setup.bash
+          - ros2 launch sim_lab_bringup sim_iris_gimbal.launch.py
+
+      - shell_command:
+          - source /opt/ros/jazzy/setup.bash
+          - ros2 launch mavros apm.launch fcu_url:=udp://:14551@
+
+  - window_name: qgc
+    panes:
+      - shell_command:
+          - /home/user/projects/sim_lab/deps/qgroundcontrol/QGroundControl.AppImage
+
+  - window_name: logic
+    panes:
+      - shell_command:
+          - source /opt/ros/jazzy/setup.bash
+          - source /home/user/projects/sim_lab/install/setup.bash

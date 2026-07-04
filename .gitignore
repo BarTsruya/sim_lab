@@ -1,0 +1,10 @@
+build/
+install/
+log/
+deps/qgroundcontrol/*.AppImage
+.claude/
+# deps/ardupilot and deps/ardupilot_gazebo are git submodules (pinned at the
+# tag/commit this workspace was built and verified against) - not vendored.
+# NOTE: deps/*/COLCON_IGNORE marker files are intentional (not ignored) -
+# they stop colcon from recursing into ArduPilot's own colcon packages
+# (ardupilot_sitl/ardupilot_msgs, which pull in the broken AP_DDS build).
